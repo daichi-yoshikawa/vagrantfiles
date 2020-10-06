@@ -63,6 +63,7 @@ Vagrant.configure("2") do |config|
     vb.gui = true
     #   # Customize the amount of memory on the VM:
     vb.memory = "4096"
+    vb.cpus = 4
     vb.customize [
       "modifyvm", :id,
       "--vram", "256",
@@ -84,7 +85,7 @@ Vagrant.configure("2") do |config|
      apt-get install -y ubuntu-desktop
      apt-get install -y libopenblas-dev
      apt-get install -y mesa-utils freeglut3-dev
-     mkdir -p /home/vagrant/local /home/vagrant/work/projects
+     mkdir -p /home/vagrant/local
      wget -O boost_1_74_0.tar.gz https://sourceforge.net/projects/boost/files/boost/1.74.0/boost_1_74_0.tar.gz/download
      tar zxf boost_1_74_0.tar.gz
      rm boost_1_74_0.tar.gz
@@ -92,7 +93,7 @@ Vagrant.configure("2") do |config|
      ./bootstrap.sh --prefix=/home/vagrant/local
      ./b2 stage -j8 threading=multi link=shared
      ./b2 install threading=multi link=shared
-     cd
+     cd /home/vagrant
      wget -O eigen-3.3.7.tar.gz https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3.7.tar.gz
      tar zxf eigen-3.3.7.tar.gz
      rm eigen-3.3.7.tar.gz
@@ -101,7 +102,7 @@ Vagrant.configure("2") do |config|
      cd build
      cmake -DCMAKE_INSTALL_PREFIX=/home/vagrant/local ..
      make -j8 install
-     cd
+     cd /home/vagrant
      wget -O yaml-cpp-0.6.3.tar.gz https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-0.6.3.tar.gz
      tar zxf yaml-cpp-0.6.3.tar.gz
      rm yaml-cpp-0.6.3.tar.gz
@@ -111,8 +112,19 @@ Vagrant.configure("2") do |config|
      cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/vagrant/local ..
      make -j8
      make -j8 install
-     echo 'export PATH=$HOME/local/bin:$PATH' >> /home/vagrant/.bashrc
-     echo 'export LD_LIBRARY_PATH=$HOME/local/lib:$LD_LIBRARY_PATH' >> /home/vagrant/.bashrc
+     cd /home/vagrant
+     wget -O ode-0.16.2.tar.gz https://bitbucket.org/odedevs/ode/downloads/ode-0.16.2.tar.gz
+     tar zxf ode-0.16.2.tar.gz
+     cd ode-0.16.2/build
+     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/vagrant/local ..
+     make -j8
+     make install
+     cp -r ../include/drawstuff /home/vagrant/local/include/
+     cp libdrawstuff.so /home/vagrant/local/lib/
+     mkdir /home/vagrant/local/drawstuff
+     cp -r ../drawstuff/textures /home/vagrant/local/drawstuff/
+     chown -R vagrant:vagrant /home/vagrant/local
    SHELL
-   # cmake -DCMAKE_BUILD_TYPE=Release -DODE_WITH_DEMOS=ON -DCMAKE_INSTALL_PREFIX=/home/vagrant/local ..
+   # echo 'export PATH=$HOME/local/bin:$PATH' >> /home/vagrant/.bashrc
+   # echo 'export LD_LIBRARY_PATH=$HOME/local/lib:$LD_LIBRARY_PATH' >> /home/vagrant/.bashrc
 end
